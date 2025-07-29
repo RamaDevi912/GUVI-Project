@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paintings Collection</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 30px;
+        background-color: #f1e5c6;
+      }
+
+      h1 {
+        text-align: center;
+        color: #7c4f20;
+        margin-bottom: 20px;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        align-items: center;
+      }
+
+      .search-sort {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      input[type="text"],
+      select {
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+      }
+
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        position: relative;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: 0.3s ease;
+        cursor: pointer;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+      }
+
+      .card img {
+        width: 100%;
+        height: 380px;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .card-body {
+        padding: 15px;
+      }
+
+      .card-title {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #333;
+      }
+
+      .card-price {
+        color: green;
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      .card-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 0px;
+        /* margin-top: 15px; */
+      }
+
+      .card-button {
+        padding: 8px 12px;
+        background-color: #7c4f20;
+        font-weight: bolder;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        flex-grow: 1;
+        text-align: center;
+        white-space: nowrap;
+        margin-bottom: 10px;
+        /* margin: 0px 10px; */
+        margin-left: 5px;
+        margin-right: 5px;
+        margin-top: -15px;
+      }
+
+      .card-button:hover {
+        background-color: #f7b016;
+        color: black;
+        font-weight: bolder;
+      }
+
+      .add-to-cart-button {
+        background-color: #7c4f20;
+      }
+
+      .add-to-cart-button:hover {
+        background-color: #f7b016;
+        color: white;
+      }
+
+      
+      .remove-from-cart-button {
+        background-color: #dc3545;
+      }
+
+      .remove-from-cart-button:hover {
+        background-color: #c82333;
+        color: white;
+      }
+
+      .card-fav {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 34px;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 2;
+        transition: color 0.3s;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+      }
+
+      .card-fav.fav {
+        color: red;
+      }
+
+      .top-icons {
+        display: flex;
+        gap: 15px;
+        font-size: 28px;
+        color: #7c4f20;
+      }
+
+      .top-icon {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        position: relative;
+      }
+
+      .top-icon:hover {
+        transform: scale(1.1);
+      }
+
+      
+      .top-icon.active {
+        background-color: #7c4f20; 
+        border-radius: 50%;
+        padding: 1px;
+        transform: scale(1.1); 
+      }
+
+      .cart-count {
+        position: absolute;
+        top: -5px;
+        right: -10px;
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 7px;
+        font-size: 14px;
+        line-height: 1;
+        font-weight: bold;
+        pointer-events: none;
+      }
+
+      
+      #showAllProductsBtn {
+        padding: 8px 15px;
+        background-color: #7c4f20;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-left: 20px;
+        display: none;
+        white-space: nowrap;
+      }
+
+      #showAllProductsBtn:hover {
+        background-color: #f7b016;
+        color: black;
+      }
+
+      
+      @media (max-width: 768px) {
+        .controls {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 15px;
+        }
+
+        .search-sort {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .search-sort input,
+        .search-sort select {
+          flex-grow: 1;
+        }
+
+        .top-icons {
+          width: 100%;
+          justify-content: flex-end;
+        }
+
+        .card-buttons {
+          flex-direction: column;
+        }
+
+        #showAllProductsBtn {
+          margin-left: 0;
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 15px;
+        }
+
+        .product-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+</head>
+
+<body>
+
+    <title>Painting Collection</title>
+
+    <div class="controls">
+        <div class="search-sort">
+            <input type="text" id="searchInput" placeholder="Search Painting items..." />
+            <select id="sortSelect">
+                <option value="">Sort By</option>
+                <option value="priceLow">Price: Low to High</option>
+                <option value="priceHigh">Price: High to Low</option>
+            </select>
+        </div>
+
+    </div>
+
+    <div class="product-grid" id="productGrid"></div>
+
+   <script>
+    const paintings = [
+            {
+                id: "paint1",
+                title: "Avaneesh : Ganesha Standing with Sevikas",
+                price: 2450,
+                image: "https://www.artisanscrest.in/cdn/shop/products/pattachitra-painting-handmade-ganesha-41_grande.jpeg?v=1486709530"
+            },
+            {
+                id: "paint2",
+                title: "Abhati: The One Who Shines",
+                price: 34500,
+                image: "https://www.artisanscrest.in/cdn/shop/products/pattachitra-painting-tussar-silk-handmade-mahaveer-jain-01_grande.jpeg?v=1486723698"
+            },
+            {
+                id: "paint3",
+                title: "Akshaya Vata: The Eternal Banyan Tree",
+                price: 17500,
+                image: "https://www.artisanscrest.in/cdn/shop/products/pattachitra-painting-handmade-tree-of-life-01_grande.jpg?v=1486712295"
+            },
+            {
+                id: "paint4",
+                title: "Annapoorneshwari: The Goddess who Feeds One and All",
+                price: 120000,
+                image: "https://www.artisanscrest.in/cdn/shop/products/02annapoorneswari_grande.jpg?v=1512624722"
+            },
+            {
+                id: "paint5",
+                title: "Brajamohan: The attractive God from Braj",
+                price: 27000,
+                image: "https://www.artisanscrest.in/cdn/shop/products/acsmpclkpf-14_grande.jpg?v=1626162338"
+            },
+            {
+                id: "paint6",
+                title: "Jagannath: The Master of the Universe",
+                price: 1200,
+                image: "https://www.artisanscrest.in/cdn/shop/products/acbpspljop-84_grande.jpg?v=1488436881"
+            }
+        ];
+
+    const grid = document.getElementById("productGrid");
+      const searchInput = document.getElementById("searchInput");
+      const sortSelect = document.getElementById("sortSelect");
+      function renderProducts(data = paintings) {
+        const grid = document.getElementById("productGrid");
+        grid.innerHTML = "";
+
+        data.forEach((product) => {
+          const card = document.createElement("div");
+          card.className = "card";
+
+          const heart = document.createElement("span");
+          heart.className = "card-fav";
+          heart.innerHTML = "♡";
+          heart.onclick = () => toggleFavorite(product, heart);
+
+          const cartBtn = document.createElement("button");
+          cartBtn.className = "card-button add-to-cart-button";
+          cartBtn.innerText = "Add to Cart";
+          cartBtn.onclick = () => toggleCart(product, cartBtn);
+
+          const detailsBtn = document.createElement("button");
+          detailsBtn.className = "card-button";
+          detailsBtn.innerText = "View Details";
+          detailsBtn.onclick = () => viewDetails(product.id);
+
+          card.innerHTML = `
+      <img src="${product.image}" alt="${product.title}" />
+      <div class="card-body">
+          <div class="card-title">${product.title}</div>
+          <div class="card-price">₹${product.price}</div>
+      </div>
+    `;
+
+          const buttonContainer = document.createElement("div");
+          buttonContainer.className = "card-buttons";
+          buttonContainer.appendChild(detailsBtn);
+          buttonContainer.appendChild(cartBtn);
+
+          card.appendChild(heart);
+          card.appendChild(buttonContainer);
+          grid.appendChild(card);
+        });
+      }
+
+      function updateFavoriteIcon(element, isFavorite) {
+        element.classList.toggle("fav", isFavorite);
+        element.innerHTML = isFavorite ? "♥" : "♡";
+      }
+
+      function toggleFavorite(product, iconElement) {
+        const isNowFav = !iconElement.classList.contains("fav");
+        updateFavoriteIcon(iconElement, isNowFav);
+
+        if (isNowFav) {
+          sendFavoriteToBackend(product);
+        } else {
+          removeFavoriteFromBackend(product.id);
+        }
+      }
+
+      function sendFavoriteToBackend(product) {
+        const userId = localStorage.getItem("userId");
+
+        if (!userId) {
+          alert("Please log in to save favorites.");
+          return;
+        }
+
+        fetch("http://localhost:5000/api/favorites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: product.id,
+            title: product.title,
+            price: product.price,
+            image: product.image,
+            userId,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => console.log("✅ Saved to MongoDB:", data))
+          .catch((err) => console.error("❌ Save error:", err));
+      }
+
+      function removeFavoriteFromBackend(productId) {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          alert("Please log in to remove favorites.");
+          return;
+        }
+
+        fetch(`http://localhost:5000/api/favorites/${userId}/${productId}`, {
+          method: "DELETE",
+        })
+          .then((res) => res.json())
+          .then((data) => console.log("❌ Removed from MongoDB:", data))
+          .catch((err) => console.error("❌ Remove error:", err));
+      }
+
+      function toggleCart(product, buttonElement) {
+        const isAdding = buttonElement.innerText === "Add to Cart";
+        if (isAdding) {
+          addToCartBackend(product);
+          buttonElement.innerText = "Remove from Cart";
+          buttonElement.classList.add("remove-from-cart-button");
+          buttonElement.classList.remove("add-to-cart-button");
+        } else {
+          removeFromCartBackend(product.id);
+          buttonElement.innerText = "Add to Cart";
+          buttonElement.classList.add("add-to-cart-button");
+          buttonElement.classList.remove("remove-from-cart-button");
+        }
+      }
+
+      function addToCartBackend(product) {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          alert("Please log in to add to cart.");
+          return;
+        }
+
+        fetch("http://localhost:5000/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: product.id,
+            title: product.title,
+            price: product.price,
+            image: product.image,
+            userId,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => console.log("✅ Added to cart:", data))
+          .catch((err) => console.error("❌ Cart add error:", err));
+      }
+      function removeFromCartBackend(productId) {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          alert("Please log in to remove Cart.");
+          return;
+        }
+
+        fetch(`http://localhost:5000/api/cart/${userId}/${productId}`, {
+  method: "DELETE",
+})
+  .then((res) => res.json())
+  .then((data) => console.log("❌ Removed from cart:", data))
+  .catch((err) => console.error("❌ Remove error:", err));
+      }
+
+      function viewDetails(itemId) {
+        window.location.href = `Details/item-detail.html?itemId=${itemId}`;
+      }
+
+      function filterAndSort() {
+        let filteredData = [...paintings]; 
+
+        const query = searchInput.value.toLowerCase();
+        if (query) {
+          filteredData = filteredData.filter((product) =>
+            product.title.toLowerCase().includes(query)
+          );
+        }
+
+        const sortOption = sortSelect.value;
+        if (sortOption === "priceLow") {
+          filteredData.sort((a, b) => a.price - b.price);
+        } else if (sortOption === "priceHigh") {
+          filteredData.sort((a, b) => b.price - a.price);
+        }
+
+        
+        renderProducts(filteredData);
+      }
+
+      renderProducts();
+      searchInput.addEventListener("input", filterAndSort);
+      sortSelect.addEventListener("change", filterAndSort);
+
+</script>
+
+
+
+
+
+</body>
+
+</html>

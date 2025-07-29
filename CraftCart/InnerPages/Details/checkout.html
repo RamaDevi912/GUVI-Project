@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Payment Page</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f1e5c6;
+    }
+
+    h1 {
+      text-align: center;
+      color: #7c4f20;
+    }
+
+    h2 {
+      margin-top: 30px;
+      color: #7c4f20;
+    }
+
+    .product-card {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .product-card img {
+      width: 150px;
+      height: 200px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .counter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .counter button {
+      padding: 5px 10px;
+      font-size: 18px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #9d9c9c;
+    }
+
+    .section {
+      background: white;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    input[type="radio"] {
+      accent-color: #7c4f20;
+    }
+
+
+    .section input:focus,
+    .section textarea:focus {
+      border: 2px solid #7c4f20;
+      outline: none;
+      color: #7c4f20;
+    }
+
+
+    .qr {
+      display: none;
+      margin-top: 15px;
+    }
+
+    button#confirmBtn {
+      margin-top: 20px;
+      background-color: #20a725;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bolder;
+      cursor: pointer;
+    }
+
+    #totalAmount {
+      font-weight: bold;
+      font-size: 20px;
+      color: #333;
+    }
+
+    .qtyb {
+      background-color: #f5d8b9;
+      cursor: pointer;
+      border: 1px solid #785734;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>CHECKOUT</h1>
+
+  <div class="product-card">
+    <img
+      src="https://www.artisanscrest.in/cdn/shop/products/sculpture-greenstone-statue-radha-krishna-34_grande.jpeg?v=1487657372"
+      alt="Product" />
+    <div>
+      <h3>Abhedabhava Radha Krishna</h3>
+      <p>Price: ₹13,500</p>
+      <div class="counter">
+        <span>Qty: </span>
+        <button onclick="updateQuantity(-1)" class="qtyb">-</button>
+        <span id="quantity">1</span>
+        <button onclick="updateQuantity(1)" class="qtyb">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Total Cost</h2>
+    <p id="totalAmount">₹13,500</p>
+  </div>
+
+  <div class="section">
+    <h2>Choose Payment Method</h2>
+    <label><input type="radio" name="payment" value="cod" checked onchange="toggleQR()"> Cash on Delivery</label><br>
+    <label><input type="radio" name="payment" value="upi" onchange="toggleQR()"> UPI Payment</label>
+
+    <div class="qr" id="qrCode">
+      <p>Scan this QR Code to Pay:</p>
+      <img
+        src="data:image/png;base64,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"
+        width="150">
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Delivery Details</h2>
+    <input type="text" id="name" placeholder="Full Name" required />
+    <input type="tel" id="phone" placeholder="Phone Number" required />
+    <textarea id="address" placeholder="Delivery Address" rows="4" required></textarea>
+  </div>
+
+  <button id="confirmBtn" onclick="generateInvoice()">Confirm Order</button>
+
+  <script>
+    let quantity = 1;
+    const pricePerItem = 13500;
+
+    function updateQuantity(change) {
+      quantity = Math.max(1, quantity + change);
+      document.getElementById("quantity").innerText = quantity;
+      document.getElementById("totalAmount").innerText = `₹${quantity * pricePerItem}`;
+    }
+
+    function toggleQR() {
+      const qr = document.getElementById("qrCode");
+      const selected = document.querySelector('input[name="payment"]:checked').value;
+      qr.style.display = selected === "upi" ? "block" : "none";
+    }
+
+    function generateInvoice() {
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const address = document.getElementById("address").value;
+      const total = quantity * pricePerItem;
+      const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+      if (!name || !phone || !address) {
+        alert("Please fill in all delivery details.");
+        return;
+      }
+
+
+      //------------------------INVOICE PDF---------------------------------------------
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const currentDate = new Date().toLocaleDateString();
+
+      // Header
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(124, 79, 32);
+      doc.text("CraftCart - Order Invoice", 20, 20);
+
+      // Date 
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(80, 80, 80);
+      doc.text(`Date: ${currentDate}`, 200, 20, { align: "right" });
+
+      
+      doc.setDrawColor(124, 79, 32);
+      doc.setLineWidth(0.5);
+      doc.line(10, 25, 200, 25);
+
+      
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(124, 79, 32);
+      doc.text("Customer Details", 20, 35);
+
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Name : ${name}`, 20, 45);
+      doc.text(`Phone : ${phone}`, 20, 52);
+      doc.text(`Address : ${address}`, 20, 59);
+
+      
+      doc.setFillColor(255, 245, 230);
+      doc.setDrawColor(124, 79, 32);
+      doc.rect(15, 70, 180, 55, "FD");  
+
+      
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(124, 79, 32);
+      doc.text("Order Summary", 20, 75);
+
+      
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Product: Abhedabhava Radha Krishna`, 20, 85);
+      doc.text(`Quantity : ${quantity}`, 20, 92);
+      doc.text(`Price per Item : Rs. ${pricePerItem}`, 20, 99);
+      doc.text(`Total Amount : Rs. ${total}`, 20, 106);
+      doc.text(`Payment Method : ${paymentMethod === "upi" ? "UPI" : "Cash on Delivery"}`, 20, 113);
+
+
+      
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(124, 79, 32);
+      doc.text("Thank you for shopping with CraftCart!", 105, 140, { align: "center" });
+
+      
+      doc.save("invoice.pdf");
+
+
+      alert("Invoice downloaded. Order Confirmed ✅");
+    }
+  </script>
+
+</body>
+
+</html>
